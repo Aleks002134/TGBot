@@ -20,20 +20,20 @@ from datetime import datetime
 # функция записи времени в секундах для построения графиков
 def register_data(btc, eth, usd, eur):
     x = int(time.time())
-    with open(f'data_btc.csv', 'a+') as f:
+    with open(f'data/data_btc.csv', 'a+') as f:
         f.write(f'{x},{btc},BTC\n')
-    with open(f'data_eth.csv', 'a+') as f:
+    with open(f'data/data_eth.csv', 'a+') as f:
         f.write(f'{x},{eth},ETH\n')
-    with open(f'data_usd.csv', 'a+') as f:
+    with open(f'data/data_usd.csv', 'a+') as f:
         f.write(f'{x},{usd},USD\n')
-    with open(f'data_eur.csv', 'a+') as f:
+    with open(f'data/data_eur.csv', 'a+') as f:
         f.write(f'{x},{eur},EUR\n')
 
 
 # функция получения данных для построения графиков
 def load_data(curr):
     data_buf = {'Date': [], 'Val': [], 'Cur': []}
-    with open(f'data_{curr}.csv', 'r') as fp:
+    with open(f'data/data_{curr}.csv', 'r') as fp:
         for raw_line in fp:
             line = raw_line.strip()
 
