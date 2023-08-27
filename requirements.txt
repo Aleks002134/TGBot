@@ -2,4 +2,6 @@ lxml==4.9.3
 python-binance==1.0.17		
 python-dotenv==1.0.0	
 requests==2.31.0	
-telebot==0.0.5	
+telebot==0.0.5
+seaborn==0.12.2
+Pillow==9.5.0	
