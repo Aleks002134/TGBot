@@ -14,4 +14,4 @@
 заменяем название канал на своё в функции TGbot.send_photo. Далее -
 запускаем main.
 
-![015.png](015.png)
+![015.png](https://media.discordapp.net/attachments/1159198464408821770/1159198608017608804/image.png)
