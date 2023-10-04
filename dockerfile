@@ -1,5 +1,5 @@
 # Задает базовый образ
-FROM python:3.10
+FROM python:3.10-slim
 
 # Устанавливает рабочую директорию в контейнере
 WORKDIR /app
@@ -10,7 +10,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копирует содержимое текущей директории в контейнер
-COPY . .
+COPY main.py .
+COPY tokens.env .
 
 # Запускает приложение при старте контейнера
 CMD [ "python", "main.py" ]

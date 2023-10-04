@@ -2,3 +2,5 @@
 .idea
 venv
 tokens.env
+data
+tgbot_image.img

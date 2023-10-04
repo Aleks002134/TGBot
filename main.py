@@ -17,6 +17,7 @@ import io
 from datetime import datetime
 
 
+
 # функция записи времени в секундах для построения графиков
 def register_data(btc, eth, usd, eur):
     x = int(time.time())
@@ -51,7 +52,6 @@ def load_data(curr):
 
     return data_buf
 
-
 # Устанавливаем цвета графиков
 palette_btc = [(0.9616917, 0.8007763, 0.5606593)]
 palette_eth = [(0.50381595, 0.10373781, 0.99769923)]
@@ -83,7 +83,7 @@ def create_plots(data, palette):
     time_data = data['Date']
     time_new = []
     for x in range(len(time_data)):
-        if x % 32 == 0:
+        if x % 42 == 0:
             time_new.append(time_data[x])
 
     # Замена секунд на дату по оси x
@@ -153,7 +153,8 @@ def get_price_eurusd():
     # делаем запрос и получаем ответ
     req = requests.get(curr_url)
     if req.status_code != requests.codes.ok:
-        raise ValueError('Статус код не равен 200')
+        print(req.status_code)
+        raise ValueError()
     # заворачиваем ответ `req.text` в StringIO и передаем парсеру, указываем чем хотим спарсить
     html_tree = etree.parse(StringIO(req.text), etree.HTMLParser())
     # возвращается список всех совпадений с XPATH на странице, берем первый и единственный для каждой валюты
@@ -176,6 +177,25 @@ def get_price_btceth():
         if i['symbol'] == 'ETHUSDT':
             eth_price = i['price']
     return btc_price, eth_price
+
+
+# функция получения комиссии биткоина
+def get_comm_btc():
+    curr_url = 'https://bits.media/fee/bitcoin/'
+    # XPATH ссылки на нужные значения
+    btc_value_xpath = '/html/body/section/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/div/div[1]/span'
+    # делаем запрос и получаем ответ
+    req = requests.get(curr_url)
+    if req.status_code != requests.codes.ok:
+        print(req.status_code)
+        raise ValueError()
+    # заворачиваем ответ `req.text` в StringIO и передаем парсеру, указываем чем хотим спарсить
+    html_tree = etree.parse(StringIO(req.text), etree.HTMLParser())
+    # возвращается список всех совпадений с XPATH на странице, берем первый и единственный для каждой валюты
+    btc_val_raw = html_tree.xpath(btc_value_xpath)[0]
+    # получаем текст и удаляем лишнее
+    btc_val = btc_val_raw.text
+    return btc_val
 
 
 # функция запуска бота и вывода данных о курсе
@@ -202,6 +222,19 @@ def start():
             print(type(v), v)
             time.sleep(60)
             continue
+        # Получаем комиссию биткоина с bits.media
+        try:
+            comm_btc = get_comm_btc()
+        except RequestException as b:
+            print('Ошибка запроса к bits.media', type(b), b)
+            time.sleep(60)
+            continue
+        except ValueError as w:
+            print(type(w), w)
+            time.sleep(60)
+            continue
+
+
         # переменные для вывода
         btc = float(btceth[0])
         eth = float(btceth[1])
@@ -223,7 +256,8 @@ def start():
             TGbot.send_photo("@currencyofmoney",
                              photo=open('merged_images.png', 'rb'),
                              caption=f'Курс BTC {btc:.2f}$\nКурс ETH {eth:.2f}$\n'
-                             f'Курс EUR {eur:.2f}₽\nКурс USD {usd:.2f}₽ ')
+                             f'Курс EUR {eur:.2f}₽\nКурс USD {usd:.2f}₽\n\n '
+                             f'Рекомендуемая комиссия в BTC: {comm_btc} sat/vB')
             os.remove("merged_images.png")
             time.sleep(1800)
         except telebot.apihelper.ApiException as e:
@@ -234,8 +268,11 @@ def start():
 
 # проверка вызова функции
 if __name__ == '__main__':
-    try:
-        start()
-    except Exception as m:
-        print('Непредвиденная ошибка:', type(m), m)
-        exit(-1)
+    while True:
+        try:
+            start()
+        except Exception as m:
+            print('Непредвиденная ошибка:', type(m), m)
+            time.sleep(120)
+            continue
+
